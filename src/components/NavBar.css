@@ -1,0 +1,60 @@
+.navbar {
+  width: 250px; /* Antes estaba en 200px */
+  min-height: 100vh; 
+  background-color: #f3f3f3;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+}
+
+
+/* Ajustes generales de los enlaces */
+.nav-link {
+  color: #333;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin-bottom: 0.5rem; /* Espacio entre enlaces */
+}
+
+/* Efecto hover */
+.nav-link:hover {
+  background-color: #ddd;
+}
+
+/* Enlace activo */
+.active {
+  background-color: #007bff;
+  color: #fff;
+}
+
+/* Línea divisoria */
+.divider {
+  margin: 1rem 0;
+  border: none;
+  border-top: 1px solid #ccc;
+}
+
+/* Botón de logout */
+.logout-button {
+  background-color: #e74c3c; /* Rojo, por ejemplo */
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%; /* Ajustar si lo quieres del ancho de la barra */
+  text-align: left; /* Si quieres alinearlo a la izquierda dentro del menú */
+  margin-top: 0.5rem;
+}
+
+.logout-button:hover {
+  background-color: #c0392b;
+}
+

@@ -1,25 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
+//App.js
+//Importaciones generales + React
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+//Control de NavBar
+import AuthLayout from './components/NavBarOFF';
+import MainLayout from './components/NavBarON';
+
+//Páginas concretas
+import Login from './pages/Login';
+import EstaSemana from './pages/EstaSemana';
+import ProximaSemana from './pages/ProximaSemana';
+import Horarios from './pages/Horarios';
+import Estadisticas from './pages/Estadisticas';
+
+//Control de token y rutas protegidas
+import ProtectedRoute from './ProtectedRoute';
+import { AuthProvider } from './AuthContext';
+
+
+//Estilos globales
+import './App.css'; 
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+    <BrowserRouter>
+
+      <Routes>
+        {/* Rutas para autenticación */}
+        <Route element={<AuthLayout />}>  
+        <Route path="/login" element={<Login />} />                                 </Route>
+
+        {/* Rutas protegidas*/}
+          <Route element={            <ProtectedRoute><MainLayout /></ProtectedRoute>}>
+          <Route path="/esta-semana" element={<EstaSemana />} />
+          <Route path="/proxima-semana" element={<ProximaSemana />} />
+          <Route path="/horarios" element={<Horarios/>} />
+          <Route path="/estadisticas" element={<Estadisticas/>} />                 </Route>
+                                                                                    </Routes>
+    
+                                                                                    </BrowserRouter>
+                                                                                    </AuthProvider>
   );
+
 }
 
 export default App;

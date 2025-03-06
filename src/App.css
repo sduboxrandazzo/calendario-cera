@@ -36,3 +36,14 @@
     transform: rotate(360deg);
   }
 }
+/* El contenedor principal se muestra en flex */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* El área donde se mostrarán tus páginas */
+.app-content {
+  flex: 1;
+  padding: 1rem;
+}
