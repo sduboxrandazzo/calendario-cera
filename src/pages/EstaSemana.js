@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./EstaSemana.css";
 
 // Ejemplo de datos de referencia (normalmente se obtendrían de una API o contexto)
-const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+const DIAS = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
 
 const HORARIOS = [
   "8:15 a 8:55",

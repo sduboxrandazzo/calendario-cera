@@ -1,3 +1,4 @@
+//Horarios.js
 import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../AuthContext';
 import Papa from 'papaparse';

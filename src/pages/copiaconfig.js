@@ -1,63 +1,38 @@
-// Configuracion.js (Organizado y Completo)
+// Configuracion.js
 import React, { useState, useEffect } from 'react';
 import './Configuracion.css';
 
 function Configuracion() {
-
-  // === Estados Globales ===
-  const [entornos, setEntornos] = useState(() => JSON.parse(sessionStorage.getItem('entornos') || '[]'));
-  const [entornosChicos, setEntornosChicos] = useState(() => JSON.parse(sessionStorage.getItem('entornosChicos') || '[]'));
-  const [nuevoEntorno, setNuevoEntorno] = useState('');
-  const listaCursos = ['1er año', '2do año', '3er año', '4to año', '5to año'];
-  const handleAgregarEntorno = (e) => {
-    e.preventDefault();
-    if (!nuevoEntorno) return;
-    setEntornos([...entornos, nuevoEntorno]);
-    setNuevoEntorno('');
-  };
-  
-  const handleToggleEntornoChico = (entorno) => {
-    setEntornosChicos(prev =>
-      prev.includes(entorno) ? prev.filter(e => e !== entorno) : [...prev, entorno]
-    );
-  };
-  
-  const handleEliminarEntorno = (index) => {
-    const entornoEliminado = entornos[index];
-    setEntornos(entornos.filter((_, i) => i !== index));
-    setEntornosChicos(entornosChicos.filter(e => e !== entornoEliminado));
-  };
-  
-
-  // === Estados para FERIADOS ===
-  const [feriados, setFeriados] = useState(() => JSON.parse(sessionStorage.getItem('feriados') || '[]'));
+  /* =========================================================
+   *  FERIADOS
+   * ========================================================= */
+  const [feriados, setFeriados] = useState(() => {
+    const storedData = sessionStorage.getItem('feriados');
+    return storedData ? JSON.parse(storedData) : [];
+  });
   const [nuevaFecha, setNuevaFecha] = useState('');
   const [nuevoTitulo, setNuevoTitulo] = useState('');
+  
+  // Estados para edición de feriados
   const [editFeriadoIndex, setEditFeriadoIndex] = useState(null);
   const [editFeriadoFecha, setEditFeriadoFecha] = useState('');
   const [editFeriadoTitulo, setEditFeriadoTitulo] = useState('');
 
-  // === Estados Salidas ===
-  const [salidas, setSalidas] = useState(() => JSON.parse(sessionStorage.getItem('salidas') || '[]'));
-  const [tituloSalida, setTituloSalida] = useState('');
-  const [inicioSalida, setInicioSalida] = useState('');
-  const [finSalida, setFinSalida] = useState('');
-  const [cursosSeleccionados, setCursosSeleccionados] = useState([]);
-  const [mostrarPopupCursos, setMostrarPopupCursos] = useState(false);
-  
-  const [editSalidaIndex, setEditSalidaIndex] = useState(null);
-  const [editSalidaCursos, setEditSalidaCursos] = useState([]);
-  const [editSalidaTitulo, setEditSalidaTitulo] = useState('');
-  const [editSalidaInicio, setEditSalidaInicio] = useState('');
-  const [editSalidaFin, setEditSalidaFin] = useState('');
-  const [mostrarPopupCursosEdit, setMostrarPopupCursosEdit] = useState(false);
+  useEffect(() => {
+    sessionStorage.setItem('feriados', JSON.stringify(feriados));
+  }, [feriados]);
 
-  // === Handlers Feriados ===
   const handleAgregarFeriado = (e) => {
     e.preventDefault();
-    setFeriados([...feriados, { fecha: nuevaFecha, titulo: nuevoTitulo }]);
+    if (!nuevaFecha || !nuevoTitulo) return;
+    const nuevoFeriado = { fecha: nuevaFecha, titulo: nuevoTitulo };
+    setFeriados([...feriados, nuevoFeriado]);
     setNuevaFecha('');
     setNuevoTitulo('');
+  };
+
+  const handleEliminarFeriado = (index) => {
+    setFeriados(feriados.filter((_, i) => i !== index));
   };
 
   const handleEditarFeriado = (index) => {
@@ -66,86 +41,189 @@ function Configuracion() {
     setEditFeriadoTitulo(feriados[index].titulo);
   };
 
-  const handleGuardarFeriado = () => {
-    const nuevos = [...feriados];
-    nuevos[editFeriadoIndex] = { fecha: editFeriadoFecha, titulo: editFeriadoTitulo };
-    setFeriados(nuevos);
+  const handleGuardarFeriado = (index) => {
+    const nuevosFeriados = [...feriados];
+    nuevosFeriados[index] = { fecha: editFeriadoFecha, titulo: editFeriadoTitulo };
+    setFeriados(nuevosFeriados);
     setEditFeriadoIndex(null);
   };
 
-  const handleCancelarEdicionFeriado = () => setEditFeriadoIndex(null);
-  const handleEliminarFeriado = (index) => setFeriados(feriados.filter((_, i) => i !== index));
+  const handleCancelarEdicionFeriado = () => {
+    setEditFeriadoIndex(null);
+  };
+
+  /* =========================================================
+   *  SALIDAS/ACTIVIDADES
+   * ========================================================= */
+  const [salidas, setSalidas] = useState(() => {
+    const stored = sessionStorage.getItem('salidas');
+    return stored ? JSON.parse(stored) : [];
+  });
+  const [cursosSeleccionados, setCursosSeleccionados] = useState([]);
+  const [tituloSalida, setTituloSalida] = useState('');
+  const [inicioSalida, setInicioSalida] = useState('');
+  const [finSalida, setFinSalida] = useState('');
+  // Popup para selección de cursos (AGREGAR)
+  const [mostrarPopupCursos, setMostrarPopupCursos] = useState(false);
+  // Estados para edición de salida
+  const [editSalidaIndex, setEditSalidaIndex] = useState(null);
+  const [editSalidaCursos, setEditSalidaCursos] = useState([]);
+  const [editSalidaTitulo, setEditSalidaTitulo] = useState('');
+  const [editSalidaInicio, setEditSalidaInicio] = useState('');
+  const [editSalidaFin, setEditSalidaFin] = useState('');
+  // Popup para selección de cursos (EDITAR)
+  const [mostrarPopupCursosEdit, setMostrarPopupCursosEdit] = useState(false);
 
   useEffect(() => {
-    sessionStorage.setItem('feriados', JSON.stringify(feriados));
     sessionStorage.setItem('salidas', JSON.stringify(salidas));
+  }, [salidas]);
+
+  const listaCursos = ['1er año', '2do año', '3er año', '4to año', '5to año'];
+
+  const handleAgregarSalida = (e) => {
+    e.preventDefault();
+    if (!cursosSeleccionados.length || !tituloSalida || !inicioSalida || !finSalida) return;
+    const nuevaSalida = { cursos: cursosSeleccionados, titulo: tituloSalida, inicio: inicioSalida, fin: finSalida };
+    setSalidas([...salidas, nuevaSalida]);
+    setCursosSeleccionados([]);
+    setTituloSalida('');
+    setInicioSalida('');
+    setFinSalida('');
+  };
+
+  const handleEliminarSalida = (index) => {
+    setSalidas(salidas.filter((_, i) => i !== index));
+  };
+
+  const abrirPopupCursos = () => {
+    setMostrarPopupCursos(true);
+  };
+  const cerrarPopupCursos = () => {
+    setMostrarPopupCursos(false);
+  };
+  const handleToggleCurso = (curso) => {
+    if (cursosSeleccionados.includes(curso)) {
+      setCursosSeleccionados(cursosSeleccionados.filter(c => c !== curso));
+    } else {
+      setCursosSeleccionados([...cursosSeleccionados, curso]);
+    }
+  };
+
+  const handleEditarSalida = (index) => {
+    setEditSalidaIndex(index);
+    const salida = salidas[index];
+    setEditSalidaCursos(salida.cursos);
+    setEditSalidaTitulo(salida.titulo);
+    setEditSalidaInicio(salida.inicio);
+    setEditSalidaFin(salida.fin);
+  };
+
+  const handleGuardarSalida = (index) => {
+    const nuevasSalidas = [...salidas];
+    nuevasSalidas[index] = { cursos: editSalidaCursos, titulo: editSalidaTitulo, inicio: editSalidaInicio, fin: editSalidaFin };
+    setSalidas(nuevasSalidas);
+    setEditSalidaIndex(null);
+  };
+
+  const handleCancelarEdicionSalida = () => {
+    setEditSalidaIndex(null);
+  };
+
+  const abrirPopupCursosEdit = () => {
+    setMostrarPopupCursosEdit(true);
+  };
+  const cerrarPopupCursosEdit = () => {
+    setMostrarPopupCursosEdit(false);
+  };
+  const handleToggleCursoEdit = (curso) => {
+    if (editSalidaCursos.includes(curso)) {
+      setEditSalidaCursos(editSalidaCursos.filter(c => c !== curso));
+    } else {
+      setEditSalidaCursos([...editSalidaCursos, curso]);
+    }
+  };
+
+  /* =========================================================
+   *  ENTORNOS
+   * ========================================================= */
+  // Listado de entornos (para que el selector de ProximaSemana use estos)
+  const [entornos, setEntornos] = useState(() => {
+    const stored = sessionStorage.getItem('entornos');
+    return stored ? JSON.parse(stored) : [];
+  });
+  const [nuevoEntorno, setNuevoEntorno] = useState('');
+  const [editEntornoIndex, setEditEntornoIndex] = useState(null);
+  const [editEntornoNombre, setEditEntornoNombre] = useState('');
+
+  useEffect(() => {
+    sessionStorage.setItem('entornos', JSON.stringify(entornos));
+  }, [entornos]);
+
+  const handleAgregarEntorno = (e) => {
+    e.preventDefault();
+    if (!nuevoEntorno) return;
+    setEntornos([...entornos, nuevoEntorno]);
+    setNuevoEntorno('');
+  };
+
+  const handleEliminarEntorno = (index) => {
+    setEntornos(entornos.filter((_, i) => i !== index));
+  };
+
+  const handleEditarEntorno = (index) => {
+    setEditEntornoIndex(index);
+    setEditEntornoNombre(entornos[index]);
+  };
+
+  const handleGuardarEntorno = (index) => {
+    const nuevosEntornos = [...entornos];
+    nuevosEntornos[index] = editEntornoNombre;
+    setEntornos(nuevosEntornos);
+    setEditEntornoIndex(null);
+  };
+
+  const handleCancelarEdicionEntorno = () => {
+    setEditEntornoIndex(null);
+  };
+
+  /* =========================================================
+   *  REGLAS DE COMPORTAMIENTO DE LAS RESERVAS
+   * ========================================================= */
+  const [entornos, setEntornos] = useState(() => {
+    const stored = sessionStorage.getItem('entornos');
+    return stored ? JSON.parse(stored) : [];
+  });
+  const [nuevoEntorno, setNuevoEntorno] = useState('');
+  const [entornosChicos, setEntornosChicos] = useState(() => {
+    const stored = sessionStorage.getItem('entornosChicos');
+    return stored ? JSON.parse(stored) : [];
+  });
+  
+  useEffect(() => {
     sessionStorage.setItem('entornos', JSON.stringify(entornos));
     sessionStorage.setItem('entornosChicos', JSON.stringify(entornosChicos));
-  }, [feriados, salidas, entornos, entornosChicos]);
-
-// Agregar Salida
-const handleAgregarSalida = (e) => {
-  e.preventDefault();
-  const nuevaSalida = {
-    cursos: cursosSeleccionados,
-    titulo: tituloSalida,
-    inicio: inicioSalida,
-    fin: finSalida
+  }, [entornos, entornosChicos]);
+  
+  const handleAgregarEntorno = (e) => {
+    e.preventDefault();
+    if (!nuevoEntorno) return;
+    setEntornos([...entornos, nuevoEntorno]);
+    setNuevoEntorno('');
   };
-  setSalidas([...salidas, nuevaSalida]);
-  setCursosSeleccionados([]);
-  setTituloSalida('');
-  setInicioSalida('');
-  setFinSalida('');
-};
-
-// Popup cursos (Agregar)
-const abrirPopupCursos = () => setMostrarPopupCursos(true);
-const cerrarPopupCursos = () => setMostrarPopupCursos(false);
-
-const handleToggleCurso = (curso) => {
-  setCursosSeleccionados(prev =>
-    prev.includes(curso) ? prev.filter(c => c !== curso) : [...prev, curso]
-  );
-};
-
-// Popup cursos (Editar)
-const abrirPopupCursosEdit = () => setMostrarPopupCursosEdit(true);
-const cerrarPopupCursosEdit = () => setMostrarPopupCursosEdit(false);
-
-const handleToggleCursoEdit = (curso) => {
-  setEditSalidaCursos(prev =>
-    prev.includes(curso) ? prev.filter(c => c !== curso) : [...prev, curso]
-  );
-};
-
-// Editar Salida
-const handleEditarSalida = (index) => {
-  setEditSalidaIndex(index);
-  setEditSalidaCursos(salidas[index].cursos);
-  setEditSalidaTitulo(salidas[index].titulo);
-  setEditSalidaInicio(salidas[index].inicio);
-  setEditSalidaFin(salidas[index].fin);
-};
-
-const handleGuardarSalida = (index) => {
-  const nuevasSalidas = [...salidas];
-  nuevasSalidas[index] = {
-    cursos: editSalidaCursos,
-    titulo: editSalidaTitulo,
-    inicio: editSalidaInicio,
-    fin: editSalidaFin
+  
+  const handleEliminarEntorno = (index) => {
+    const entornoEliminado = entornos[index];
+    setEntornos(entornos.filter((_, i) => i !== index));
+    setEntornosChicos(entornosChicos.filter(e => e !== entornoEliminado));
   };
-  setSalidas(nuevasSalidas);
-  setEditSalidaIndex(null);
-};
-
-const handleCancelarEdicionSalida = () => setEditSalidaIndex(null);
-
-const handleEliminarSalida = (index) => {
-  setSalidas(salidas.filter((_, i) => i !== index));
-};
-
+  
+  const handleToggleEntornoChico = (entorno) => {
+    if (entornosChicos.includes(entorno)) {
+      setEntornosChicos(entornosChicos.filter(e => e !== entorno));
+    } else {
+      setEntornosChicos([...entornosChicos, entorno]);
+    }
+  };
 
   /* =========================================================
    *  RENDER
@@ -205,8 +283,9 @@ const handleEliminarSalida = (index) => {
           </tbody>
         </table>
       </section>
- {/* ====================== SALIDAS / ACTIVIDADES ====================== */}
- <section className="configuracion-section">
+
+      {/* ====================== SALIDAS / ACTIVIDADES ====================== */}
+      <section className="configuracion-section">
         <h2>Salidas y Actividades</h2>
         <form onSubmit={handleAgregarSalida} className="configuracion-form">
           <div className="form-group">
@@ -322,8 +401,50 @@ const handleEliminarSalida = (index) => {
         )}
       </section>
 
-     {/* ====================== ENTORNOS ====================== */}
+      {/* ====================== ENTORNOS ====================== */}
       <section className="configuracion-section">
+        <h2>Entornos</h2>
+        <form onSubmit={handleAgregarEntorno} className="configuracion-form">
+          <div className="form-group">
+            <label>Nuevo entorno:</label>
+            <input type="text" value={nuevoEntorno} onChange={(e) => setNuevoEntorno(e.target.value)} placeholder="Ej: Aula 101" />
+          </div>
+          <button type="submit" className="button-primary">Agregar Entorno</button>
+        </form>
+        <table className="configuracion-table">
+          <thead>
+            <tr>
+              <th>Entorno</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {entornos.map((entornoItem, index) =>
+              editEntornoIndex === index ? (
+                <tr key={index}>
+                  <td>
+                    <input type="text" value={editEntornoNombre} onChange={(e) => setEditEntornoNombre(e.target.value)} />
+                  </td>
+                  <td>
+                    <button onClick={() => handleGuardarEntorno(index)} className="button-secondary">Guardar</button>
+                    <button onClick={handleCancelarEdicionEntorno} className="button-secondary">Cancelar</button>
+                  </td>
+                </tr>
+              ) : (
+                <tr key={index}>
+                  <td>{entornoItem}</td>
+                  <td>
+                    <button onClick={() => handleEditarEntorno(index)} className="button-secondary">Editar</button>
+                    <button onClick={() => handleEliminarEntorno(index)} className="button-secondary">Eliminar</button>
+                  </td>
+                </tr>
+              )
+            )}
+          </tbody>
+        </table>
+      </section>
+
+      {/* ====================== REGLAS DE COMPORTAMIENTO DE LAS RESERVAS ====================== */}
       <div className="configuracion-container">
       <h1>Configuración de Entornos</h1>
       <form onSubmit={handleAgregarEntorno} className="configuracion-form">
@@ -361,10 +482,9 @@ const handleEliminarSalida = (index) => {
         </tbody>
       </table>
     </div>
-      </section>
     </div>
   );
 }
 
-export default Configuracion;
 
+export default Configuracion;
