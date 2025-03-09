@@ -56,6 +56,15 @@ function NavBar() {
         Estadísticas
       </NavLink>
 
+      {user && user.rol === 'administrador' && (
+      <NavLink 
+        to="/configuracion"
+        className="nav-link"
+        activeClassName="active"
+      >
+        Configuracion
+      </NavLink>
+       )}
 
 
       {/* Botón que cierra sesión y redirige */}

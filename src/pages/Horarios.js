@@ -1,86 +1,96 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../AuthContext';
 import Papa from 'papaparse';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
 import logo from '../assets/logo.png';
 import './Horarios.css';
 
 function Horarios() {
   const { user } = useContext(AuthContext);
-
-  const [horarios, setHorarios] = useState([]);
-  const [cursoSeleccionado, setCursoSeleccionado] = useState(1);
+  const [horarios, setHorarios] = useState(() => {
+    const storedData = sessionStorage.getItem('horarios');
+    return storedData ? JSON.parse(storedData) : [];
+  });
+  const [cursoSeleccionado, setCursoSeleccionado] = useState("1er año");
   const [archivoSeleccionado, setArchivoSeleccionado] = useState(null);
-  const [mensaje, setMensaje] = useState(null);
+  const [errores, setErrores] = useState([]);
+  const [filasErroneas, setFilasErroneas] = useState(0);
 
-  const horas = [
+  // Listas de validación
+  const diasValidos = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"];
+  const horasValidas = [
     "8:15 a 8:55", "8:55 a 9:35", "9:35 a 9:50", "9:50 a 10:30", "10:30 a 11:10",
     "11:10 a 11:25", "11:25 a 12:05", "12:05 a 12:45", "12:45 a 13:20", "13:20 a 14:00",
     "14:00 a 14:40", "14:40 a 15:20", "15:20 a 15:30", "15:30 a 16:10"
   ];
-  const dias = ["LUNES", "MARTES", "Miércoles", "Jueves", "Viernes"];
+  const cursosValidos = ["1er año", "2do año", "3er año", "4to año", "5to año"];
+  const horasEspeciales = {
+    "9:35 a 9:50": "RECREO",
+    "11:10 a 11:25": "RECREO",
+    "12:45 a 13:20": "ALMUERZO",
+    "15:20 a 15:30": "RECREO"
+  };
 
-  // Función para manejar la selección del archivo CSV
+  // Guardar horarios en sessionStorage
+  useEffect(() => {
+    sessionStorage.setItem('horarios', JSON.stringify(horarios));
+  }, [horarios]);
+
+  // Selección de archivo CSV
   const handleFileSelect = (event) => {
     setArchivoSeleccionado(event.target.files[0]);
   };
 
-  // Función para procesar y cargar el CSV con el nuevo orden de columnas
+  // Cargar CSV y actualizar horarios
   const handleCSVUpload = () => {
     if (!archivoSeleccionado) {
-      setMensaje({ tipo: "error", texto: "Debes seleccionar un archivo" });
+      setErrores(["Debes seleccionar un archivo"]);
+      setFilasErroneas(0);
       return;
     }
 
     Papa.parse(archivoSeleccionado, {
       complete: (result) => {
         if (!result.data || result.data.length === 0) {
-          setMensaje({ tipo: "error", texto: "Ocurrió un error al subir el archivo" });
+          setErrores(["Ocurrió un error al subir el archivo"]);
+          setFilasErroneas(0);
           return;
         }
 
-        const data = result.data.filter(row => row.length > 1).map(row => ({
-          Día: row["Día"], // Nueva estructura
-          Hora: row["Hora"],
-          Materia: row["Materia"],
-          Submateria: row["Submateria/Grupo"] || "", // Si no hay submateria, dejar vacío
-          Docente: row["Docente"],
-          Curso: row["Curso"]
-        }));
+        let filasErroneas = 0;
+        let detallesErrores = [];
+        const data = result.data
+          .filter((row, index) => {
+            const dia = row["Día"] ? row["Día"].trim().toUpperCase() : "";
+            const hora = row["Hora"] ? row["Hora"].trim() : "";
+            const curso = row["Curso"] ? row["Curso"].trim() : "";
+
+            const diaValido = diasValidos.includes(dia);
+            const horaValida = horasValidas.includes(hora);
+            const cursoValido = cursosValidos.includes(curso);
+
+            if (!diaValido || !horaValida || !cursoValido) {
+              filasErroneas++;
+              detallesErrores.push(`Línea ${index + 1}: Día: ${dia}, Hora: ${hora}, Curso: ${curso} - ❌ Error en uno o más campos.`);
+              return false;
+            }
+            return true;
+          })
+          .map(row => ({
+            Día: row["Día"].trim().toUpperCase(),
+            Hora: row["Hora"].trim(),
+            Materia: row["Materia"] ? row["Materia"].trim().toUpperCase() : "",
+            Submateria: row["Submateria/Grupo"] ? row["Submateria/Grupo"].trim() : "",
+            Docente: row["Docente"] ? row["Docente"].trim() : "",
+            Curso: row["Curso"].trim()
+          }));
 
         setHorarios(data);
-        setMensaje({ tipo: "success", texto: "Horario actualizado satisfactoriamente" });
-
-        // Ocultar mensaje después de 3 segundos
-        setTimeout(() => setMensaje(null), 3000);
+        setFilasErroneas(filasErroneas);
+        setErrores(detallesErrores);
       },
       header: true,
-      error: () => {
-        setMensaje({ tipo: "error", texto: "Ocurrió un error al subir el archivo" });
-      }
+      skipEmptyLines: true
     });
-  };
-
-  // Función para generar y descargar un PDF con el horario
-  const handlePrintPDF = () => {
-    const doc = new jsPDF();
-    doc.text(`Horario de ${cursoSeleccionado}° año`, 14, 20);
-    doc.addImage(logo, 'PNG', 160, 10, 30, 30);
-    doc.autoTable({
-      head: [['Horas', ...dias]],
-      body: horas.map((hora) => [
-        hora,
-        ...dias.map(dia => {
-          const materia = horarios.find(h =>
-            h.Curso === `${cursoSeleccionado}` && h.Hora === hora && h.Día === dia
-          );
-          return materia ? `${materia.Materia} ${materia.Submateria ? `(${materia.Submateria})` : ''} (${materia.Docente})` : '';
-        })
-      ]),
-      startY: 40
-    });
-    doc.save(`Horario_${cursoSeleccionado}Año.pdf`);
   };
 
   return (
@@ -91,13 +101,13 @@ function Horarios() {
       {user?.rol === 'administrador' && <h3 className="admin-label">Administradores</h3>}
 
       <div className="button-container">
-        {[1, 2, 3, 4, 5].map(año => (
+        {cursosValidos.map((curso, index) => (
           <button
-            key={año}
-            onClick={() => setCursoSeleccionado(año)}
-            className={`year-button ${cursoSeleccionado === año ? 'active' : ''}`}
+            key={index}
+            onClick={() => setCursoSeleccionado(curso)}
+            className={`year-button ${cursoSeleccionado === curso ? 'active' : ''}`}
           >
-            {año}° Año
+            {curso}
           </button>
         ))}
       </div>
@@ -106,25 +116,52 @@ function Horarios() {
         <thead>
           <tr>
             <th>Horas</th>
-            {dias.map(dia => <th key={dia}>{dia}</th>)}
+            {diasValidos.map(dia => <th key={dia}>{dia}</th>)}
           </tr>
         </thead>
         <tbody>
-          {horas.map((hora, index) => (
-            <tr key={index}>
-              <td>{hora}</td>
-              {dias.map(dia => {
-                const materia = horarios.find(h =>
-                  h.Curso === `${cursoSeleccionado}` && h.Hora === hora && h.Día === dia
-                );
-                return <td key={dia}>{materia ? `${materia.Materia} ${materia.Submateria ? `(${materia.Submateria})` : ''} (${materia.Docente})` : ''}</td>;
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+  {horasValidas.map((hora, index) => {
+    // Si es un horario especial, unir las celdas en una sola fila
+    if (horasEspeciales[hora]) {
+      return (
+        <tr key={index} className="reduced-height">
+          <td>{hora}</td>
+          <td colSpan={5} className="special-cell">{horasEspeciales[hora]}</td>
+        </tr>
+      );
+    }
 
-      <button onClick={handlePrintPDF} className="button print">Imprimir horario</button>
+    return (
+      <tr key={index}>
+        <td>{hora}</td>
+        {diasValidos.map(dia => {
+          // Filtrar todas las materias que coincidan con el curso, día y hora
+          const materias = horarios.filter(h =>
+            h.Curso === cursoSeleccionado &&
+            h.Hora === hora &&
+            h.Día === dia
+          );
+
+          return (
+            <td key={dia}>
+              {materias.length > 0 ? (
+                materias.map((materia, idx) => (
+                  <div key={idx} className="materia-box">
+                    <strong>{materia.Materia}</strong>
+                    <br />
+                    {materia.Docente}
+                  </div>
+                ))
+              ) : ''}
+            </td>
+          );
+        })}
+      </tr>
+    );
+  })}
+</tbody>
+
+      </table>
 
       {user?.rol === 'administrador' && (
         <div className="upload-container">
@@ -133,7 +170,15 @@ function Horarios() {
         </div>
       )}
 
-      {mensaje && <p className={`mensaje ${mensaje.tipo}`}>{mensaje.texto}</p>}
+      {errores.length > 0 && (
+        <div className="error-messages">
+          <h4>Errores detectados:</h4>
+          <p>{filasErroneas} filas fueron excluidas por errores.</p>
+          <ul>
+            {errores.map((error, index) => <li key={index}>{error}</li>)}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

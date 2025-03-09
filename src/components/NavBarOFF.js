@@ -1,4 +1,4 @@
-// AuthLayout.jsx
+// AuthLayout.js
 // Un layout simple que NO renderiza la NavBar:
 import React from 'react';
 import { Outlet } from 'react-router-dom';

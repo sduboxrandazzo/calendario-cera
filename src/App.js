@@ -1,6 +1,6 @@
 //App.js
 //Importaciones generales + React
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 //Control de NavBar
 import AuthLayout from './components/NavBarOFF';
@@ -12,6 +12,7 @@ import EstaSemana from './pages/EstaSemana';
 import ProximaSemana from './pages/ProximaSemana';
 import Horarios from './pages/Horarios';
 import Estadisticas from './pages/Estadisticas';
+import Configuracion from './pages/Configuracion';
 
 //Control de token y rutas protegidas
 import ProtectedRoute from './ProtectedRoute';
@@ -28,16 +29,18 @@ function App() {
     <BrowserRouter>
 
       <Routes>
+      <Route path="/" element={<Navigate to="/login" replace />} />
         {/* Rutas para autenticación */}
         <Route element={<AuthLayout />}>  
-        <Route path="/login" element={<Login />} />                                 </Route>
+        <Route path="/login" element={<Login/>} />                                 </Route>
 
         {/* Rutas protegidas*/}
           <Route element={            <ProtectedRoute><MainLayout /></ProtectedRoute>}>
           <Route path="/esta-semana" element={<EstaSemana />} />
           <Route path="/proxima-semana" element={<ProximaSemana />} />
           <Route path="/horarios" element={<Horarios/>} />
-          <Route path="/estadisticas" element={<Estadisticas/>} />                 </Route>
+          <Route path="/estadisticas" element={<Estadisticas/>} />
+          <Route path="/configuracion" element={<Configuracion/>} />                 </Route>
                                                                                     </Routes>
     
                                                                                     </BrowserRouter>

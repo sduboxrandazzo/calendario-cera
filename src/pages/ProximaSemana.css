@@ -1,0 +1,57 @@
+.contenedorProximaSemana {
+    padding: 16px;
+  }
+  
+  .headerProximaSemana {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .tituloReservas {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  
+  .fechaHora {
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  /* Texto exclusivo para administradores */
+  .textoAdmin {
+    font-weight: bold;
+    color: #d9534f;
+    margin-bottom: 1rem;
+  }
+  
+  /* Navegación: usar flex en una sola fila (nowrap), con un poco de espacio entre botones */
+  .navegacionAgenda {
+    display: flex;
+    flex-wrap: nowrap; /* Evita que se rompa en múltiples filas */
+    gap: 8px;          /* Separación horizontal entre botones */
+    margin-bottom: 1rem;
+  }
+  
+  .diaSeleccionado {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+  }
+  
+  .tablaCalendario {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .tablaCalendario th,
+  .tablaCalendario td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .tablaCalendario th {
+    background-color: #f9f9f9;
+  }
+  

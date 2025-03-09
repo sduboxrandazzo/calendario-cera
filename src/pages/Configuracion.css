@@ -1,0 +1,119 @@
+/* Contenedor general */
+.configuracion-container {
+    max-width: 800px;
+    margin: 0 auto; /* Centra horizontalmente */
+    padding: 2rem;
+    font-family: Arial, sans-serif;
+    color: #333;
+    background-color: #f9f9f9; /* Fondo suave */
+  }
+  
+  /* Título principal */
+  .configuracion-container h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  /* Sección genérica con borde y esquinas redondeadas */
+  .configuracion-section {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    background-color: #fff;
+  }
+  
+  /* Título de cada sección */
+  .configuracion-section h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  
+  /* Formulario */
+  .configuracion-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .configuracion-form .form-group {
+    display: flex;
+    align-items: center;
+  }
+  
+  .configuracion-form .form-group label {
+    min-width: 120px;
+    margin-right: 0.5rem;
+    font-weight: bold;
+  }
+  
+  .configuracion-form .form-group input,
+  .configuracion-form .form-group select {
+    flex: 1;
+    padding: 0.4rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  /* Botón principal */
+  .button-primary {
+    width: fit-content;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    background-color: #2980b9;
+    color: #fff;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+  
+  .button-primary:hover {
+    background-color: #21618c;
+  }
+  
+  /* Botón secundario/pequeño */
+  .button-secondary {
+    padding: 0.3rem 0.6rem;
+    margin-right: 0.4rem;
+    border: none;
+    border-radius: 4px;
+    background-color: #95a5a6;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  
+  .button-secondary:hover {
+    background-color: #7f8c8d;
+  }
+  
+  /* Tablas */
+  .configuracion-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    overflow: hidden;
+    border-radius: 10px;
+  }
+  
+  .configuracion-table th,
+  .configuracion-table td {
+    border: 1px solid #ddd;
+    padding: 0.6rem;
+    text-align: left;
+    vertical-align: middle;
+  }
+  
+  .configuracion-table th {
+    background-color: #f3f3f3;
+    font-weight: 600;
+  }
+  
+  /* Ajustes de botón dentro de celdas */
+  .configuracion-table td button {
+    margin-right: 0.4rem;
+  }
+  
